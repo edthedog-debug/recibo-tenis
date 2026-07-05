@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Facturas</title>
+    <!-- Tailwind CSS para un diseño limpio y moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans antialiased p-6 sm:p-12">
+
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+        
+        <!-- ENCABEZADO Y BOTONES DE CONTROL -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 mb-8 border-b border-gray-100 gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Factura</h1>
+                <p class="text-sm text-gray-400">Nº RE-2026-001</p>
+            </div>
+            
+            <!-- Botones opcionales estilizados y proporcionados -->
+            <div class="flex items-center gap-3 bg-gray-50 p-1.5 rounded-lg border border-gray-200/60">
+                <button id="btnIva" onclick="toggleIva()" class="px-4 py-2 text-xs font-semibold rounded-md transition-all duration-200 bg-blue-600 text-white shadow-sm">
+                    ✓ IVA (21%)
+                </button>
+                <button id="btnIrpf" onclick="toggleIrpf()" class="px-4 py-2 text-xs font-semibold rounded-md transition-all duration-200 bg-blue-600 text-white shadow-sm">
+                    ✓ IRPF (15%)
+                </button>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: EMISOR Y CLIENTE (Horizontal / Lado a lado) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 bg-gray-50/50 p-6 rounded-xl border border-gray-100">
+            <!-- Emisor -->
+            <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-gray-400 block mb-2">Emisor</span>
+                <h3 class="text-base font-semibold text-gray-800">Tu Nombre / Empresa S.L.</h3>
+                <p class="text-sm text-gray-500 mt-1">CIF: B12345678</p>
+                <p class="text-sm text-gray-500">Calle Empresa, Nº 12, Madrid</p>
+            </div>
+            
+            <!-- Cliente -->
+            <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-4 md:pt-0 md:pl-8">
+                <span class="text-xs font-bold uppercase tracking-wider text-gray-400 block mb-2">Cliente</span>
+                <h3 class="text-base font-semibold text-gray-800">Nombre del Cliente S.A.</h3>
+                <p class="text-sm text-gray-500 mt-1">NIF: A87654321</p>
+                <p class="text-sm text-gray-500">Avenida Comercial, Nº 45, Barcelona</p>
+            </div>
+        </div>
+
+        <!-- DETALLES DEL SERVICIO -->
+        <div class="overflow-x-auto mb-8">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-400">
+                        <th class="py-3">Descripción del Servicio</th>
+                        <th class="py-3 text-right">Importe</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
+                    <tr>
+                        <td class="py-4 font-medium text-gray-900">Desarrollo Web y Optimización SEO</td>
+                        <td class="py-4 text-right font-semibold">1.000,00 €</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TOTALES Y DESGLOSE -->
+        <div class="w-full md:w-1/2 ml-auto border-t-2 border-gray-900/10 pt-4 text-sm text-gray-600 space-y-3">
+            <div class="flex justify-between">
+                <span>Base Imponible:</span>
+                <span class="font-medium text-gray-900">1.000,00 €</span>
+            </div>
+            
+            <!-- IVA Fila -->
+            <div id="rowIva" class="flex justify-between transition-all duration-200">
+                <span>IVA (21%):</span>
+                <span class="font-medium text-gray-900">+210,00 €</span>
+            </div>
+            
+            <!-- IRPF Fila (Modificado para que sume) -->
+            <div id="rowIrpf" class="flex justify-between transition-all duration-200 text-gray-600">
+                <span>IRPF (15%):</span>
+                <span class="font-medium text-gray-900">+150,00 €</span>
+            </div>
+            
+            <div class="flex justify-between text-base font-bold text-gray-900 border-t border-gray-100 pt-3">
+                <span>Total Factura:</span>
+                <span id="txtTotal" class="text-lg text-blue-600">1.360,00 €</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LÓGICA DE CONTROL (JS) -->
+    <script>
+        const baseImporte = 1000;
+        let conIva = true;
+        let conIrpf = true;
+
+        function calcularTotal() {
+            const iva = conIva ? baseImporte * 0.21 : 0;
+            const irpf = conIrpf ? baseImporte * 0.15 : 0; 
+            
+            // Cambio clave: Ahora el IRPF se suma (+ irpf) en lugar de restarse
+            const total = baseImporte + iva + irpf;
+
+            // Renderizar filas visuales
+            document.getElementById('rowIva').style.display = conIva ? 'flex' : 'none';
+            document.getElementById('rowIrpf').style.display = conIrpf ? 'flex' : 'none';
+            
+            // Renderizar Total
+            document.getElementById('txtTotal').innerText = total.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' €';
+        }
+
+        function toggleIva() {
+            conIva = !conIva;
+            const btn = document.getElementById('btnIva');
+            if(conIva) {
+                btn.className = "px-4 py-2 text-xs font-semibold rounded-md transition-all duration-200 bg-blue-600 text-white shadow-sm";
+                btn.innerText = "✓ IVA (21%)";
+            } else {
+                btn.className = "px-4 py-2 text-xs font-semibold rounded-md transition-all duration-200 bg-white text-gray-500 hover:bg-gray-100 border border-gray-200";
+                btn.innerText = "+ Añadir IVA";
+            }
+            calcularTotal();
+        }
+
+        function toggleIrpf() {
+            conIrpf = !conIrpf;
+            const btn = document.getElementById('btnIrpf');
+            if(conIrpf) {
+                btn.className = "px-4 py-2 text-xs font-semibold rounded-md transition-all duration-200 bg-blue-600 text-white shadow-sm";
+                btn.innerText = "✓ IRPF (15%)";
+            } else {
+                btn.className = "px-4 py-2 text-xs font-semibold rounded-md transition-all duration-200 bg-white text-gray-500 hover:bg-gray-100 border border-gray-200";
+                btn.innerText = "+ Añadir IRPF";
+            }
+            calcularTotal();
+        }
+
+        // Inicializar
+        calcularTotal();
+    </script>
+</body>
+</html>
