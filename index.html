@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Point Invoice - Mobile Edition</title>
+    <!-- Librería crítica para generar PDFs reales directamente en el dispositivo cliente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --apple-bg: #f5f5f7;
+            --apple-card: #ffffff;
+            --apple-text: #1d1d1f;
+            --apple-text-secondary: #86868b;
+            --apple-green: #34c759;
+            --apple-blue: #0071e3;
+            --tennis-accent: #1e4620;
+            --tennis-neon: #ccff00;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--apple-bg);
+            color: var(--apple-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--apple-card);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+            padding: 40px;
+            position: relative;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e5ea;
+        }
+
+        .lang-selector select {
+            background: rgba(0,0,0,0.05);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--apple-text);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-manual {
+            background: var(--apple-bg);
+            border: 1px solid rgba(0,0,0,0.1);
+            color: var(--apple-blue);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-manual:hover {
+            background: rgba(0, 113, 227, 0.05);
+            border-color: var(--apple-blue);
+        }
+
+        .flex-vertical-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            width: 100%;
+        }
+
+        @media (max-width: 640px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .section-box {
+            background: #fafafa;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #f0f0f2;
+            width: 100%;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--tennis-accent);
+            margin-top: 0;
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--apple-text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"], 
+        input[type="number"], 
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 1rem;
+            color: var(--apple-text);
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        input[type="date"] {
+            width: 100% !important;
+            padding: 14px 16px;
+            border: 1.5px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 1rem;
+            color: var(--apple-text);
+            background-color: #ffffff;
+            display: block !important;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+        }
+
+        .tax-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 14px;
+            border: 1px solid #e5e5ea;
+        }
+
+        .switch-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .switch-container input[type="checkbox"] {
+            width: 46px;
+            height: 26px;
+            min-width: 46px;
+            min-height: 26px;
+            appearance: none;
+            background: #e5e5ea;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            outline: none;
+            transition: background 0.2s;
+            margin: 0;
+        }
+
+        .switch-container input[type="checkbox"]:checked {
+            background: var(--apple-green);
+        }
+
+        .switch-container input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .switch-container input[type="checkbox"]:checked::before {
+            transform: translateX(20px);
+        }
+
+        .results-panel {
+            background: var(--apple-text);
+            color: #ffffff;
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 30px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .result-row.total {
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 15px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            opacity: 1;
+            color: var(--tennis-neon);
+        }
+
+        .action-bar {
+            margin-top: 30px;
+        }
+
+        .btn-print {
+            background: var(--tennis-accent);
+            color: #ffffff;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 12px rgba(30, 70, 32, 0.2);
+            border-bottom: 3px solid var(--tennis-neon);
+        }
+
+        .btn-print:hover {
+            transform: translateY(-1px);
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            max-width: 550px;
+            width: 100%;
+            max-height: 85vh; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            animation: slideUp 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px 15px 30px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5ea;
+            z-index: 10;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--apple-text);
+        }
+
+        .modal-body {
+            padding: 20px 30px 30px 30px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .btn-close-cross {
+            background: rgba(30, 70, 32, 0.08);
+            border: 1px solid rgba(30, 70, 32, 0.15);
+            font-size: 1.5rem;
+            line-height: 1;
+            color: var(--tennis-accent);
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 12px rgba(30, 70, 32, 0.12);
+            padding: 0;
+        }
+        
+        .btn-close-cross:hover {
+            background: var(--tennis-accent);
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(30, 70, 32, 0.3);
+            transform: scale(1.05);
+        }
+
+        .modal-body ol {
+            padding-left: 20px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .modal-body li {
+            margin-bottom: 15px;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .oculto-interfaz {
+            display: none !important;
+        }
+
+        /* ----------------------------------------------------------- */
+        /* ESTILOS EXCLUSIVOS EN MODO PREVIEW EN MÓVIL (html2pdf)      */
+        /* ----------------------------------------------------------- */
+        .pdf-clonado-container {
+            background: #ffffff !important;
+            padding: 25px !important;
+            box-sizing: border-box !important;
+            display: block !important;
+            width: 680px !important;
+            margin: 0 auto !important;
+            transform: scale(0.94);
+            transform-origin: top center;
+        }
+
+        .pdf-clonado-container .top-bar, 
+        .pdf-clonado-container .action-bar, 
+        .pdf-clonado-container .tax-options, 
+        .pdf-clonado-container .switch-container {
+            display: none !important;
+        }
+
+        .pdf-clonado-container .flex-vertical-stack {
+            gap: 12px !important;
+        }
+
+        .pdf-clonado-container .section-box {
+            padding: 14px 20px !important;
+            background: #ffffff !important;
+            border: 1px solid #e5e5ea !important;
+            border-radius: 12px !important;
+        }
+
+        .pdf-valor-texto {
+            font-size: 1.05rem !important;
+            color: #1d1d1f !important;
+            padding: 4px 0 !important;
+            font-weight: 500 !important;
+            border-bottom: 1px dashed #d2d2d7 !important;
+            min-height: 24px;
+        }
+
+        .pdf-clonado-container .results-panel {
+            background: #f5f5f7 !important;
+            color: #1d1d1f !important;
+            border: 1px solid #d2d2d7 !important;
+            padding: 18px !important;
+            margin-top: 12px !important;
+            border-radius: 12px !important;
+        }
+
+        .pdf-clonado-container .result-row.total {
+            color: #1e4620 !important;
+            border-top: 2px solid #1e4620 !important;
+        }
+
+        .ocultar-pdf {
+            display: none !important;
+        }
+
+        /* ----------------------------------------------------------- */
+        /* REGLAS DE IMPRESIÓN NATIVA CON ESCALADO (ORDENADOR)        */
+        /* ----------------------------------------------------------- */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0 !important; /* El margen lo gestiona el contenedor escalado */
+            }
+
+            html, body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                display: block !important;
+                height: 100% !important;
+                overflow: hidden !important; /* Corta radicalmente cualquier intento de crear página 2 */
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .container {
+                display: block !important;
+                box-shadow: none !important;
+                border: none !important;
+                background: transparent !important;
+                
+                /* ESCALADO DINÁMICO CRÍTICO: Reduce un 20% el tamaño para forzar la entrada en una página */
+                width: 210mm !important; /* Ancho A4 exacto */
+                max-width: 210mm !important;
+                padding: 15mm !important;
+                margin: 0 auto !important;
+                transform: scale(0.82) !important; 
+                transform-origin: top center !important;
+            }
+
+            /* Ocultar elementos innecesarios */
+            .top-bar, 
+            .action-bar, 
+            .tax-options, 
+            .switch-container, 
+            .modal {
+                display: none !important;
+            }
+
+            .flex-vertical-stack {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 12px !important;
+                margin-bottom: 15px !important;
+            }
+
+            .section-box {
+                background: #ffffff !important;
+                border: 1px solid #e5e5ea !important;
+                padding: 14px 18px !important;
+                border-radius: 12px !important;
+                page-break-inside: avoid !important;
+            }
+
+            .section-title {
+                margin-top: 0 !important;
+                margin-bottom: 10px !important;
+                font-size: 1.1rem !important;
+            }
+
+            .form-group {
+                margin-bottom: 8px !important;
+            }
+
+            /* NUEVA REGLA: Si el formulario está vacío en ordenador, no se imprime la sección entera */
+            .form-group:has(input:placeholder-shown),
+            .form-group:has(textarea:placeholder-shown),
+            .form-group.oculto-interfaz {
+                display: none !important;
+            }
+
+            label {
+                margin-bottom: 4px !important;
+                font-size: 0.75rem !important;
+            }
+
+            input[type="text"], 
+            input[type="number"], 
+            input[type="date"], 
+            textarea {
+                border: none !important;
+                border-bottom: 1px dashed #b5b5b5 !important;
+                border-radius: 0 !important;
+                padding: 4px 0 !important;
+                font-size: 0.95rem !important;
+                background: transparent !important;
+                resize: none !important;
+                width: 100% !important;
+                display: block !important;
+            }
+
+            .grid-2 {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 20px !important;
+                margin-top: 5px !important;
+            }
+
+            .results-panel {
+                background: #f5f5f7 !important;
+                color: #000000 !important;
+                border: 1px solid #dddddd !important;
+                padding: 15px 20px !important;
+                margin-top: 10px !important;
+                border-radius: 12px !important;
+                page-break-inside: avoid !important;
+            }
+
+            .result-row {
+                margin-bottom: 6px !important;
+                font-size: 0.9rem !important;
+            }
+
+            .result-row.total {
+                padding-top: 10px !important;
+                font-size: 1.3rem !important;
+                color: var(--tennis-accent) !important;
+                border-top: 2px solid var(--tennis-accent) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="invoiceContainer">
+    <div class="top-bar">
+        <div class="lang-selector">
+            <select id="langSelect" onchange="cambiarIdioma()">
+                <option value="es">Castellano</option>
+                <option value="cat">Català</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        <button type="button" class="btn-manual" id="lblManualBtn" onclick="toggleManual(true)">Manual de Uso</button>
+    </div>
+
+    <form id="invoiceForm">
+        <div class="flex-vertical-stack">
+            
+            <div class="section-box" id="secEmisor">
+                <h3 class="section-title" id="lblEmisor">Emisor de Factura</h3>
+                <div class="flex-vertical-stack" style="gap: 15px;">
+                    <div class="form-group" id="fgTitular">
+                        <label id="lblTitular">Nombre del Titular / Club</label>
+                        <input type="text" id="titular" placeholder="Club de Tenis Premium">
+                    </div>
+                    
+                    <div class="switch-container" style="background: #ffffff; padding: 12px 16px; border-radius: 12px; border: 1px solid #e5e5ea;">
+                        <span id="lblFechaSwitch">Incluir fecha en la factura</span>
+                        <input type="checkbox" id="mostrarFechaSwitch" checked onchange="toggleFechaInterfaz()">
+                    </div>
+
+                    <div class="form-group" id="fgFecha">
+                        <label id="lblFechaFactura">Fecha de Factura</label>
+                        <input type="date" id="fechaFactura">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-box" id="secCliente">
+                <h3 class="section-title" id="lblClienteSec">Cliente</h3>
+                <div class="form-group" id="fgCliente">
+                    <label id="lblClienteNom">Nombre del Cliente</label>
+                    <input type="text" id="cliente" placeholder="Nombre completo">
+                </div>
+                <div class="form-group" id="fgDireccion">
+                    <label id="lblDireccion">Dirección del Cliente</label>
+                    <textarea id="direccion" rows="2" placeholder="Dirección física"></textarea>
+                </div>
+            </div>
+
+            <div class="section-box" id="secDetalles">
+                <h3 class="section-title" id="lblDetalles">Detalles del Servicio</h3>
+                <div class="form-group" id="fgAsunto">
+                    <label id="lblAsunto">Asunto / Concepto (Obligatorio)</label>
+                    <input type="text" id="asunto" placeholder="Ej. Alquiler de Pistas e Inscripción a Torneo">
+                </div>
+
+                <div class="grid-2" style="margin-top: 15px;">
+                    <div class="form-group" id="fgImporte">
+                        <label id="lblImporte">Importe Base (€)</label>
+                        <input type="number" id="importe" step="0.01" min="0" placeholder="0.00" oninput="calcularTotales()">
+                    </div>
+
+                    <div class="tax-options">
+                        <div class="switch-container">
+                            <span id="lblIvaSwitch">Aplicar IVA (21%)</span>
+                            <input type="checkbox" id="ivaSwitch" onchange="calcularTotales()">
+                        </div>
+                        <div class="switch-container">
+                            <span id="lblIrpfSwitch">Aplicar IRPF (15%)</span>
+                            <input type="checkbox" id="irpfSwitch" onchange="calcularTotales()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="results-panel">
+            <div class="result-row" id="rowSubtotal">
+                <span id="lblResSubtotal">Subtotal Base:</span>
+                <span id="resSubtotal">0.00 €</span>
+            </div>
+            <div class="result-row" id="rowIva">
+                <span id="lblResIva">IVA (21%):</span>
+                <span id="resIva">0.00 €</span>
+            </div>
+            <div class="result-row" id="rowIrpf">
+                <span id="lblResIrpf">IRPF (15%):</span>
+                <span id="resIrpf">0.00 €</span>
+            </div>
+            <div class="result-row total">
+                <span id="lblResTotal">Total Factura:</span>
+                <span id="resTotal">0.00 €</span>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button type="button" class="btn-print" id="lblImprimirBtn" onclick="imprimirFactura()">Generar factura 📄</button>
+        </div>
+    </form>
+</div>
+
+<div class="modal" id="manualModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="lblManualTitulo">Manual de Instrucciones</h3>
+            <button type="button" class="btn-close-cross" onclick="toggleManual(false)">&times;</button>
+        </div>
+        <div class="modal-body">
+            <ol id="manualPasos">
+                <!-- Dinámico -->
+            </ol>
+        </div>
+    </div>
+</div>
+
+<script>
+const traducciones = {
+    es: {
+        lblManualBtn: "Manual de Uso", lblEmisor: "Emisor de Factura", lblTitular: "Nombre del Titular / Club", 
+        lblFechaSwitch: "Incluir fecha en la factura", lblFechaFactura: "Fecha de Factura",
+        lblClienteSec: "Cliente", lblClienteNom: "Nombre del Cliente", lblDireccion: "Dirección del Cliente",
+        lblDetalles: "Detalles del Servicio", lblAsunto: "Asunto / Concepto (Obligatorio)", lblImporte: "Importe Base (€)",
+        lblIvaSwitch: "Aplicar IVA (21%)", lblIrpfSwitch: "Aplicar IRPF (15%)", lblResSubtotal: "Subtotal Base:",
+        lblResIva: "IVA (21%):", lblResIrpf: "IRPF (15%):", lblResTotal: "Total Factura:",
+        lblImprimirBtn: "Generar factura 📄", lblManualTitulo: "Manual de Instrucciones",
+        titular: "Club de Tenis Premium", cliente: "Nombre completo", direccion: "Dirección física", asunto: "Ej. Alquiler de Pistas e Inscripción a Torneo",
+        pasos: [
+            "Rellene los datos obligatorios del emisor, cliente e importe base.",
+            "Pulse el botón <strong>'Generar factura 📄'</strong> en la parte inferior para exportar un PDF de una sola hoja limpia.",
+            "<strong>Guardar PDFs en iOS (iPhone/iPad):</strong> Safari abrirá el documento directamente en pantalla. Para guardarlo permanentemente, pulse el botón de <strong>'Compartir'</strong> y elija <strong>'Guardar en Archivos'</strong>.",
+            "<strong>Guardar PDFs en Android:</strong> El archivo se descargará de forma directa en la carpeta local de <strong>'Descargas'</strong> de su dispositivo.",
+            "<strong>[Recomendado] Instalar como App en iOS (Safari):</strong> Pulse el botón de <strong>Compartir</strong> (icono de un cuadrado con una flecha hacia arriba en la barra de Safari) y, en el menú que se despliega, seleccione la opción <strong>'Añadir a pantalla de inicio'</strong>.",
+            "<strong>[Recomendado] Instalar como App en Android (Chrome):</strong> Pulse el icono de los <strong>tres puntos verticales</strong> en la esquina superior derecha y seleccione la opción <strong>'Añadir a la pantalla de inicio'</strong> o <strong>'Instalar aplicación'</strong>."
+        ]
+    },
+    cat: {
+        lblManualBtn: "Manual d'Ús", lblEmisor: "Emissor de Factura", lblTitular: "Nom del Titular / Club", 
+        lblFechaSwitch: "Incloure data a la factura", lblFechaFactura: "Data de Factura",
+        lblClienteSec: "Client", lblClienteNom: "Nom del Client", lblDireccion: "Adreça del Client",
+        lblDetalles: "Detalls del Servei", lblAsunto: "Assumpte / Concepte (Obligatori)", lblImporte: "Import Base (€)",
+        lblIvaSwitch: "Aplicar IVA (21%)", lblIrpfSwitch: "Aplicar IRPF (15%)", lblResSubtotal: "Subtotal Base:",
+        lblResIva: "IVA (21%):", lblResIrpf: "IRPF (15%):", lblResTotal: "Total Factura:",
+        lblImprimirBtn: "Generar factura 📄", lblManualTitulo: "Manual d'Instruccions",
+        titular: "Club de Tennis Premium", cliente: "Nom complet", direccion: "Adreça física", asunto: "Ex. Lloguer de Pistes i Inscripció a Torneig",
+        pasos: [
+            "Ompliu les dades obligatòries de l'emissor, el client i l'import base.",
+            "Feu clic al botó <strong>'Generar factura 📄'</strong> a la part inferior per descarregar un PDF net d'una sola pàgina.",
+            "<strong>Desar PDFs a iOS (iPhone/iPad):</strong> Safari obrirà el PDF directament en pantalla. Per desar-lo de forma definitiva, premeu el botó de <strong>'Compartir'</strong> i trieu l'opció <strong>'Desa a Fitxers'</strong>.",
+            "<strong>Desar PDFs a Android:</strong> El fitxer es baixarà automàticament en segon pla a la carpeta local de <strong>'Baixades'</strong>.",
+            "<strong>[Recomanat] Instal·lar com a App a iOS (Safari):</strong> Premeu el botó de <strong>Compartir</strong> (icona del quadrat amb la fletxa cap amunt a Safari) i, al menú desplegable, seleccioneu l'opció <strong>'Afegeix a la pantalla d'inici'</strong>.",
+            "<strong>[Recomanat] Instal·lar com a App a Android (Chrome):</strong> Premeu l'icona dels <strong>tres punts verticals</strong> a la part superior dreta i seleccioneu <strong>'Afegeix a la pantalla d'inici'</strong> o <strong>'Instal·la l'aplicació'</strong>."
+        ]
+    },
+    en: {
+        lblManualBtn: "User Manual", lblEmisor: "Invoice Issuer", lblTitular: "Holder / Club Name", 
+        lblFechaSwitch: "Include date on invoice", lblFechaFactura: "Invoice Date",
+        lblClienteSec: "Client", lblClienteNom: "Client Name", lblDireccion: "Client Address",
+        lblDetalles: "Service Details", lblAsunto: "Subject / Concept (Required)", lblImporte: "Base Amount (€)",
+        lblIvaSwitch: "Apply IVA (21%)", lblIrpfSwitch: "Apply IRPF (15%)", lblResSubtotal: "Base Subtotal:",
+        lblResIva: "IVA (21%):", lblResIrpf: "IRPF (15%):", lblResTotal: "Invoice Total:",
+        lblImprimirBtn: "Generate invoice 📄", lblManualTitulo: "Instruction Manual",
+        titular: "Premium Tennis Club", cliente: "Full name", direccion: "Physical address", asunto: "E.g., Court Rental and Tournament Registration",
+        pasos: [
+            "Fill in the required information for the issuer, client, and base amount.",
+            "Tap the <strong>'Generate invoice 📄'</strong> button at the bottom to export a clean, single-page PDF document.",
+            "<strong>Saving PDFs on iOS (iPhone/iPad):</strong> Safari will open the single-page PDF directly. Tap <strong>'Share'</strong> and select <strong>'Save to Files'</strong> to keep it permanently.",
+            "<strong>Saving PDFs on Android:</strong> The file will automatically download in the background directly into your device's <strong>'Downloads'</strong> folder.",
+            "<strong>[Recommended] Add to Home Screen on iOS (Safari):</strong> Tap the <strong>Share</strong> button (the square icon with an arrow pointing up) and select <strong>'Add to Home Screen'</strong> from the menu.",
+            "<strong>[Recommended] Add to Home Screen on Android (Chrome):</strong> Tap the <strong>three vertical dots</strong> in the upper right corner and select <strong>'Add to Home Screen'</strong> or <strong>'Install app'</strong>."
+        ]
+    }
+};
+
+function cambiarIdioma() {
+    const lang = document.getElementById('langSelect').value;
+    const trans = traducciones[lang];
+    
+    for (let key in trans) {
+        if (key !== 'pasos') {
+            const el = document.getElementById(key);
+            if (el) {
+                if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+                    el.placeholder = trans[key];
+                } else {
+                    el.innerHTML = trans[key];
+                }
+            }
+        }
+    }
+    const ol = document.getElementById('manualPasos');
+    ol.innerHTML = "";
+    trans.pasos.forEach(paso => {
+        const li = document.createElement('li');
+        li.innerHTML = paso;
+        ol.appendChild(li);
+    });
+}
+
+function formatearMoneda(valor) {
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(valor) + " €";
+}
+
+function calcularTotales() {
+    const importeBase = parseFloat(document.getElementById('importe').value) || 0;
+    const aplicarIva = document.getElementById('ivaSwitch').checked;
+    const aplicarIrpf = document.getElementById('irpfSwitch').checked;
+
+    let ivaCalculado = 0; if (aplicarIva) ivaCalculado = importeBase * 0.21;
+    let irpfCalculado = 0; if (aplicarIrpf) irpfCalculado = importeBase * 0.15;
+
+    const total = importeBase + ivaCalculado + irpfCalculado;
+
+    document.getElementById('resSubtotal').innerText = formatearMoneda(importeBase);
+    document.getElementById('resIva').innerText = formatearMoneda(ivaCalculado);
+    document.getElementById('resIrpf').innerText = formatearMoneda(irpfCalculado);
+    document.getElementById('resTotal').innerText = formatearMoneda(total);
+
+    document.getElementById('rowIva').className = aplicarIva ? 'result-row' : 'result-row ocultar-impuesto';
+    document.getElementById('rowIrpf').className = aplicarIrpf ? 'result-row' : 'result-row ocultar-impuesto';
+}
+
+function toggleFechaInterfaz() {
+    const check = document.getElementById('mostrarFechaSwitch').checked;
+    const divFecha = document.getElementById('fgFecha');
+    if(check) {
+        divFecha.classList.remove('oculto-interfaz');
+    } else {
+        divFecha.classList.add('oculto-interfaz');
+    }
+}
+
+function toggleManual(mostrar) {
+    document.getElementById('manualModal').style.display = mostrar ? 'flex' : 'none';
+}
+
+function imprimirFactura() {
+    const esOrdenador = window.matchMedia("(min-width: 1025px)").matches;
+
+    if (esOrdenador) {
+        window.print();
+    } else {
+        const origen = document.getElementById('invoiceContainer');
+        const clon = origen.cloneNode(true);
+        
+        const topBarClon = clon.querySelector('.top-bar');
+        if (topBarClon) topBarClon.remove();
+
+        const campos = ['titular', 'fechaFactura', 'cliente', 'direccion', 'asunto', 'importe'];
+        campos.forEach(id => {
+            const elementoOriginal = document.getElementById(id);
+            const elementoClonado = clon.querySelector('#' + id);
+            if (elementoOriginal && elementoClonado) {
+                const divTexto = document.createElement('div');
+                divTexto.className = 'pdf-valor-texto';
+                
+                if (id === 'importe') {
+                    const valNum = parseFloat(elementoOriginal.value) || 0;
+                    divTexto.innerText = formatearMoneda(valNum);
+                } else {
+                    divTexto.innerText = elementoOriginal.value || ' ';
+                }
+                elementoClonado.parentNode.replaceChild(divTexto, elementoClonado);
+            }
+        });
+
+        const inputsIds = ['titular', 'cliente', 'direccion', 'asunto'];
+        inputsIds.forEach(id => {
+            const elOrig = document.getElementById(id);
+            const grupoClon = clon.querySelector('#fg' + id.charAt(0).toUpperCase() + id.slice(1));
+            if (elOrig && grupoClon && elOrig.value.trim() === "") {
+                grupoClon.classList.add('ocultar-pdf');
+            }
+        });
+
+        const incluirFecha = document.getElementById('mostrarFechaSwitch').checked;
+        const valorFecha = document.getElementById('fechaFactura').value;
+        if (!incluirFecha || !valorFecha) {
+            const fgFechaClon = clon.querySelector('#fgFecha');
+            if (fgFechaClon) fgFechaClon.classList.add('ocultar-pdf');
+        }
+
+        if (!document.getElementById('ivaSwitch').checked) {
+            const rowIvaClon = clon.querySelector('#rowIva');
+            if (rowIvaClon) rowIvaClon.classList.add('ocultar-pdf');
+        }
+        if (!document.getElementById('irpfSwitch').checked) {
+            const rowIrpfClon = clon.querySelector('#rowIrpf');
+            if (rowIrpfClon) rowIrpfClon.classList.add('ocultar-pdf');
+        }
+
+        clon.classList.remove('container');
+        clon.classList.add('pdf-clonado-container');
+
+        const opcionesConfig = {
+            margin:       [10, 12, 10, 12], 
+            filename:     'factura_match_point.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                scrollY: 0,
+                scrollX: 0,
+                windowWidth: 720
+            },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }, 
+            pagebreak:    { mode: ['avoid'] } 
+        };
+
+        html2pdf().set(opcionesConfig).from(clon).toPdf().get('pdf').then(function (pdf) {
+            var totalPages = pdf.internal.getNumberOfPages();
+            if (totalPages > 1) {
+                for (var i = totalPages; i > 1; i--) {
+                    pdf.deletePage(i);
+                }
+            }
+        }).save().catch((error) => {
+            console.error("Error al generar el PDF:", error);
+        });
+    }
+}
+
+window.onload = function() {
+    const hoy = new Date().toISOString().split('T')[0];
+    const inputFecha = document.getElementById('fechaFactura');
+    if(inputFecha) {
+        inputFecha.value = hoy;
+    }
+    cambiarIdioma();
+    calcularTotales();
+};
+</script>
+</body>
+</html>
