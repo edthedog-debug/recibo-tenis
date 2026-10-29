@@ -378,13 +378,13 @@
         /* ----------------------------------------------------------- */
         .pdf-clonado-container {
             background: #ffffff !important;
-            padding: 25px !important;
+            padding: 20px !important;
             box-sizing: border-box !important;
             display: block !important;
-            width: 680px !important;
-            margin: 0 auto !important;
-            transform: scale(0.94);
-            transform-origin: top center;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            transform: none !important;
         }
 
         .pdf-clonado-container .top-bar, 
@@ -856,7 +856,7 @@ function imprimirFactura() {
         clon.classList.add('pdf-clonado-container');
 
         const opcionesConfig = {
-            margin:       [10, 12, 10, 12], 
+            margin:       [8, 8, 8, 8], 
             filename:     'factura_match_point.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
@@ -865,7 +865,7 @@ function imprimirFactura() {
                 logging: false,
                 scrollY: 0,
                 scrollX: 0,
-                windowWidth: 720
+                windowWidth: 595
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }, 
             pagebreak:    { mode: ['avoid'] } 
