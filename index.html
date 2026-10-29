@@ -438,7 +438,7 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 0 !important; /* El margen lo gestiona el contenedor escalado */
+                margin: 0 !important;
             }
 
             html, body {
@@ -446,7 +446,7 @@
                 color: #000000 !important;
                 display: block !important;
                 height: 100% !important;
-                overflow: hidden !important; /* Corta radicalmente cualquier intento de crear página 2 */
+                overflow: hidden !important;
                 padding: 0 !important;
                 margin: 0 !important;
             }
@@ -456,9 +456,7 @@
                 box-shadow: none !important;
                 border: none !important;
                 background: transparent !important;
-                
-                /* ESCALADO DINÁMICO CRÍTICO: Reduce un 20% el tamaño para forzar la entrada en una página */
-                width: 210mm !important; /* Ancho A4 exacto */
+                width: 210mm !important;
                 max-width: 210mm !important;
                 padding: 15mm !important;
                 margin: 0 auto !important;
@@ -466,7 +464,6 @@
                 transform-origin: top center !important;
             }
 
-            /* Ocultar elementos innecesarios */
             .top-bar, 
             .action-bar, 
             .tax-options, 
@@ -500,14 +497,12 @@
                 margin-bottom: 8px !important;
             }
 
-            /* Si el formulario está vacío en ordenador, no se imprime la sección entera */
             .form-group:has(input:placeholder-shown),
             .form-group:has(textarea:placeholder-shown),
             .form-group.oculto-interfaz {
                 display: none !important;
             }
 
-            /* MODIFICACIÓN: Oculta las filas de IVA/IRPF si están desactivadas en la versión de ordenador */
             .result-row.ocultar-impuesto {
                 display: none !important;
             }
@@ -522,7 +517,7 @@
             input[type="date"], 
             textarea {
                 border: none !important;
-                border-bottom: 1px dashed #b5b5b5 !important;
+                border-bottom: 1.5px dashed #b5b5b5 !important;
                 border-radius: 0 !important;
                 padding: 4px 0 !important;
                 font-size: 0.95rem !important;
